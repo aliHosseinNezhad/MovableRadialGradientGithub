@@ -18,6 +18,7 @@ import com.gamapp.movableradialgradient.mapper.toMotionListMapper
 import com.gamapp.movableradialgradient.model.RadialGradientInfo
 import com.gamapp.movableradialgradient.model.RadialGradientMotionInfo
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.*
 
 
@@ -36,7 +37,7 @@ internal suspend fun affectAnimation(
             val a = (item.radiusDomain.getDifference())
             val b = (count % 6000) / 6000f
             val angle = a * b
-            val radius = item.motionPath(angle) * min(rect.width, rect.height)
+            val radius = item.motionPath(angle) * min(rect.width, rect.height) * item.motionRadiusPercent
             it.coordinate = Offset(cx + radius * cos(angle), cy + radius * sin(angle))
         }
         count += item.speed
@@ -83,8 +84,10 @@ internal fun MotionRadialGradientCanvas(
     }
     LaunchedEffect(key1 = "start") {
         for (item in itemsState) {
-            affectAnimation(item, rect) {
-                itemsState.update(item, it)
+            launch {
+                affectAnimation(item, rect) {
+                    itemsState.update(item, it)
+                }
             }
         }
     }

@@ -10,7 +10,8 @@ internal data class RadialGradientMotionInfo(
     val motionPath: (Float) -> Float,
     val speed: Float,
     val center: Coordinate,
-    var coordinate: Offset?
+    var coordinate: Offset?,
+    val motionRadiusPercent:Float,
 )
 
 data class RadialGradientInfo(
@@ -20,4 +21,5 @@ data class RadialGradientInfo(
     val motionPath: (Float) -> Float,
     val center: Coordinate,
     val speed: Float,
+    val motionRadiusPercent:Float,
 )

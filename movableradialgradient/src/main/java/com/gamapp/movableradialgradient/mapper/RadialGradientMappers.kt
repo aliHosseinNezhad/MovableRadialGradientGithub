@@ -18,7 +18,8 @@ internal fun RadialGradientInfo.toMotionMapper(
         speed = this.speed,
         coordinate = null,
         center = this.center,
-        radiusDomain = this.radiusDomain
+        radiusDomain = this.radiusDomain,
+        motionRadiusPercent = this.motionRadiusPercent
     )
 }
 
