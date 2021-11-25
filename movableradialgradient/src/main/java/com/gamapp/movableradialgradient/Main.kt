@@ -1,11 +1,12 @@
 package com.gamapp.movableradialgradient
 
-import androidx.compose.foundation.Canvas
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.AndroidPaint
@@ -27,8 +28,8 @@ internal suspend fun affectAnimation(
     rect: Rect,
     update: (update: (RadialGradientMotionInfo) -> Unit) -> Unit
 ) {
-    val cx = item.center.percentX * rect.width
-    val cy = item.center.percentY * rect.height
+    val cx = item.center.x
+    val cy = item.center.y
     var count = 0f
     while (true) {
         update {
@@ -37,7 +38,8 @@ internal suspend fun affectAnimation(
             val a = (item.radiusDomain.getDifference())
             val b = (count % 6000) / 6000f
             val angle = a * b
-            val radius = item.motionPath(angle) * min(rect.width, rect.height) * item.motionRadiusPercent
+            val radius =
+                item.motionPath(angle) * min(rect.width, rect.height) * item.motionRadiusPercent
             it.coordinate = Offset(cx + radius * cos(angle), cy + radius * sin(angle))
         }
         count += item.speed
@@ -69,7 +71,8 @@ fun MotionRadialGradient(modifier: Modifier, items: List<RadialGradientInfo>) {
             }
     ) {
         rect?.let { rect ->
-            MotionRadialGradientCanvas(rect = rect, items = items.toMotionListMapper(rect))
+            if (rect.width > 0f && rect.height > 0f)
+                MotionRadialGradientCanvas(rect = rect, items = items.toMotionListMapper(rect))
         }
     }
 }
@@ -91,19 +94,22 @@ internal fun MotionRadialGradientCanvas(
             }
         }
     }
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        drawContext.canvas.apply {
-            itemsState.forEach { item ->
-                item.coordinate?.let { offset ->
-                    gradientCircle(
-                        offset = offset,
-                        radius = item.radius,
-                        color = item.color
-                    )
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .drawBehind {
+            drawContext.canvas.apply {
+                itemsState.forEach { item ->
+                    item.coordinate?.let { offset ->
+                        gradientCircle(
+                            offset = offset,
+                            radius = item.radius,
+                            color = item.color
+                        )
+                    }
                 }
             }
         }
-    }
+    )
 }
 
 fun Color.alpha(value: Float): Color {
@@ -111,7 +117,7 @@ fun Color.alpha(value: Float): Color {
         (this.red * 255).toInt(),
         (this.green * 255).toInt(),
         (this.blue * 255).toInt(),
-        (value * 255).toInt()
+        (this.alpha * value * 255).toInt()
     )
 }
 
@@ -124,7 +130,7 @@ fun <E, V> List<E>.extractList(generator: (E) -> V): List<V> {
 }
 
 fun Float.shadow(): Float {
-    return exp(this * this * -1f * 12f) * 0.7f
+    return exp(this * this * -1f * 12f) * 0.8f
 }
 
 fun generateColorStops(value: Float = 0.1f): List<Float> {
@@ -137,16 +143,9 @@ fun generateColorStops(value: Float = 0.1f): List<Float> {
     return list
 }
 
-/*
-// params:
-// offset is coordinate of gradient circle
-// radius is radius of circle
-// radius must be greeter than zero
-// color is color of circle
-//
-*/
 fun Canvas.gradientCircle(offset: Offset, radius: Float, color: Color) {
-    val colorStops = generateColorStops(1f/radius)
+    Log.i("radiusTest", "gradientCircle: $radius")
+    val colorStops = generateColorStops(1f / radius)
     val paint = AndroidPaint().apply {
         isAntiAlias = true
         shader = RadialGradientShader(
@@ -158,5 +157,5 @@ fun Canvas.gradientCircle(offset: Offset, radius: Float, color: Color) {
             }
         )
     }
-    drawCircle(center = offset, radius = radius, paint)
+    drawCircle(center = offset, radius = radius, paint = paint)
 }
