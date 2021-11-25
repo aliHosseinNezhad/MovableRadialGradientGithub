@@ -1,9 +1,15 @@
 package com.gamapp.movableradialgradient
 
+import android.graphics.ColorFilter
+import android.graphics.PorterDuff
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewGroup
+import android.widget.SeekBar
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,40 +30,31 @@ import kotlin.math.PI
 import kotlin.math.sin
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
+import com.gamapp.movableradialgradient.screen.MusicControllers
 import com.gamapp.movableradialgradient.ui.theme.MovableRadialGradientTheme
 import com.gamapp.movableradialgradient.utils.*
+import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
+import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState.Started
+import com.gamapp.movableradialgradient.viewmodel.MusicViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 
-interface Copyable<out T> where T : Copyable<T> {
-    fun getCopy(): T
-}
-
-data class ColorState(
-    val selected: Int,
-    val unSelected: Int? = null,
-    var isSelected: Boolean = true,
-) : Copyable<ColorState> {
-    val color get() = unSelected?.let { if (isSelected) selected else it } ?: selected
-    override fun getCopy(): ColorState = this.copy()
-}
-
-fun <E : Copyable<E>> SnapshotStateList<E>.update(item: E, update: (E) -> Unit) {
-    val index = indexOf(item)
-    if (index != -1) {
-        update(item)
-        this[index] = item.getCopy()
-    }
-}
-
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     var statusBarHeight: Dp = 0.dp
     var navigationBarHeight: Dp = 0.dp
@@ -66,21 +63,14 @@ class MainActivity : ComponentActivity() {
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        statusBarHeight = statusBarHeight(this)
+        statusBarHeight = 0.dp
         navigationBarHeight = navigateBarHeight(this)
         Log.i("navigationBarHeight", "$navigationBarHeight")
         setContent {
-            var isDark by remember {
-                mutableStateOf(false)
-            }
-            var heightPercent = animateFloatAsState(
-                targetValue = 0.2f
-            )
-            SetSystemColorByAnimation(
-                isDarkMode = isDark,
-                dark = Color.Black,
-                light = Color.White
-            )
+            val viewModel = hiltViewModel<MusicViewModel>()
+            var isDark by viewModel.isDark
+            val musicState by viewModel.musicPlayState
+            StatusBarColor(isDark)
             var size by remember {
                 mutableStateOf<IntSize?>(null)
             }
@@ -93,9 +83,12 @@ class MainActivity : ComponentActivity() {
                         .padding(top = statusBarHeight, bottom = navigationBarHeight)
                 ) {
                     size?.let { size ->
-                        val anchors = mapOf(size.height * 1f to 0, size.height / 2f to 1)
                         val density = LocalDensity.current.density
+                        val end = 80 * density
+                        val start = size.height * 1f
+                        val anchors = mapOf(start to 0, end to 1)
                         val swappableState = rememberSwipeableState(initialValue = 0)
+                        val borderPercent = 1f / (start - end) * (swappableState.offset.value - end)
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -111,15 +104,15 @@ class MainActivity : ComponentActivity() {
                                     velocityThreshold = 8.dp
                                 )
                                 .height((swappableState.offset.value / density).dp),
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape((50 * (1f - borderPercent))),
                             border = BorderStroke(1.dp, color = Color.Blue)
                         ) {
-                            if (size.height > 0f)
-                                BackgroundGradient(
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(20.dp)
-                                )
+                            BackgroundGradient(
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(20.dp),
+                                enable = musicState is Started
+                            )
                             Column(modifier = Modifier.fillMaxSize()) {
                                 Spacer(modifier = Modifier.weight(1f))
                                 Image(
@@ -131,55 +124,7 @@ class MainActivity : ComponentActivity() {
                                         .align(CenterHorizontally),
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
-                                Row(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 20.dp)
-                                ) {
-
-                                    val drawables = remember {
-                                        mutableStateListOf(
-                                            ColorState(
-                                                R.drawable.round_shuffle_24,
-                                                R.drawable.outline_shuffle_on_24
-                                            ),
-                                            ColorState(R.drawable.round_fast_rewind_24),
-                                            ColorState(
-                                                R.drawable.round_play_arrow_24,
-                                                R.drawable.round_pause_24
-                                            ),
-                                            ColorState(R.drawable.round_fast_forward_24),
-                                            ColorState(
-                                                R.drawable.round_repeat_24,
-                                                R.drawable.round_repeat_one_24
-                                            ),
-                                        )
-                                    }
-                                    drawables.forEach { item ->
-                                        IconButton(
-                                            onClick = {
-                                                drawables.update(item) {
-                                                    it.isSelected = !it.isSelected
-                                                }
-                                            }, modifier = Modifier
-                                                .weight(1f)
-                                                .aspectRatio(1f)
-                                                .clip(CircleShape),
-                                            enabled = true
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(id = item.color),
-                                                contentDescription = null,
-                                                modifier = Modifier
-                                                    .padding(19.dp)
-                                                    .fillMaxSize(),
-                                                tint = Color.White
-                                            )
-                                        }
-                                    }
-
-
-                                }
+                                MusicControllers(modifier = Modifier.fillMaxWidth())
                                 Spacer(modifier = Modifier.padding(bottom = 32.dp))
                             }
                         }
@@ -211,31 +156,4 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@Composable
-fun BackgroundGradient(modifier: Modifier) {
-    MotionRadialGradient(
-        modifier = modifier,
-        items = listOf(
-            RadialGradientInfo(
-                color = Color(0, 100, 255).alpha(0.9f),
-                radiusPercent = 3f,
-                speed = 2f,
-                polarMotionPath = {
-                    sin(2 * it)
-                },
-                center = Coordinate(0.5f, 0.5f),
-                motionFieldSizePercent = 1.8f
-            ),
-            RadialGradientInfo(
-                color = Color.Magenta.alpha(0.5f),
-                radiusPercent = 1.6f,
-                speed = 2f,
-                polarMotionPath = {
-                    sin(2 * (it + PI.toFloat() / 4))
-                },
-                center = Coordinate(0.5f, 0.5f),
-                motionFieldSizePercent = 1.5f
-            )
-        )
-    )
-}
+

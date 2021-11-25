@@ -26,6 +26,7 @@ import kotlin.math.*
 internal suspend fun affectAnimation(
     item: RadialGradientMotionInfo,
     rect: Rect,
+    enable: Boolean,
     update: (update: (RadialGradientMotionInfo) -> Unit) -> Unit
 ) {
     val cx = item.center.x
@@ -43,7 +44,9 @@ internal suspend fun affectAnimation(
             it.coordinate = Offset(cx + radius * cos(angle), cy + radius * sin(angle))
         }
         count += item.speed
-        delay(1)
+        if (enable)
+            delay(1)
+        else break
     }
 }
 
@@ -60,7 +63,11 @@ internal fun SnapshotStateList<RadialGradientMotionInfo>.update(
 }
 
 @Composable
-fun MotionRadialGradient(modifier: Modifier, items: List<RadialGradientInfo>) {
+fun MotionRadialGradient(
+    modifier: Modifier,
+    items: List<RadialGradientInfo>,
+    enable: Boolean = true
+) {
     var rect by remember {
         mutableStateOf(null as Rect?)
     }
@@ -72,7 +79,11 @@ fun MotionRadialGradient(modifier: Modifier, items: List<RadialGradientInfo>) {
     ) {
         rect?.let { rect ->
             if (rect.width > 0f && rect.height > 0f)
-                MotionRadialGradientCanvas(rect = rect, items = items.toMotionListMapper(rect))
+                MotionRadialGradientCanvas(
+                    rect = rect,
+                    items = items.toMotionListMapper(rect),
+                    enable = enable
+                )
         }
     }
 }
@@ -80,15 +91,16 @@ fun MotionRadialGradient(modifier: Modifier, items: List<RadialGradientInfo>) {
 @Composable
 internal fun MotionRadialGradientCanvas(
     rect: Rect,
-    items: SnapshotStateList<RadialGradientMotionInfo>
+    items: SnapshotStateList<RadialGradientMotionInfo>,
+    enable: Boolean
 ) {
     val itemsState = remember {
         items
     }
-    LaunchedEffect(key1 = "start") {
+    LaunchedEffect(key1 = enable) {
         for (item in itemsState) {
             launch {
-                affectAnimation(item, rect) {
+                affectAnimation(item, rect, enable = enable) {
                     itemsState.update(item, it)
                 }
             }

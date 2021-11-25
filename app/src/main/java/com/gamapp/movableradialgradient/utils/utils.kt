@@ -4,23 +4,18 @@ import android.R
 import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.Rect
-import android.view.View
+import android.media.MediaPlayer
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.SpringSpec
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import kotlinx.coroutines.delay
 
 //fun statusBarHeight(context: Context): Dp {
 //    val rectangle = Rect()
@@ -56,7 +51,7 @@ fun statusBarHeight(context: Context): Dp {
 }
 
 @Composable
-fun StatusBarColor(isDarkMode: Boolean) {
+fun StatusBarColor(isDark: Boolean) {
     val context = LocalContext.current
     val activity = context as Activity
     val window: Window = activity.window
@@ -70,7 +65,7 @@ fun StatusBarColor(isDarkMode: Boolean) {
         activity.findViewById(R.id.content)
     ).apply {
         this.isAppearanceLightNavigationBars = false
-        isAppearanceLightStatusBars = !isDarkMode
+        isAppearanceLightStatusBars = !isDark
     }
 }
 
@@ -91,7 +86,25 @@ fun changeDarkMode(isDark: Boolean) {
     )
 }
 
+
+
+
 @Composable
-fun SetSystemColorByAnimation(isDarkMode: Boolean, dark: Color, light: Color) {
-    StatusBarColor(isDarkMode)
+fun MediaPlayer.seekState(play: Boolean,seek:Float = 0f,onEnd:()->Unit): MutableState<Float> {
+    val seekPercent = remember {
+        mutableStateOf(0f)
+    }
+    LaunchedEffect(key1 = seek, key2 = play) {
+        seekTo((seek * duration).toInt())
+        while (isPlaying && play) {
+            seekPercent.value = currentPosition / duration.toFloat()
+            delay(1000)
+        }
+        this@seekState.setOnCompletionListener {
+            seekTo(0)
+            seekPercent.value = 0f
+            onEnd()
+        }
+    }
+    return seekPercent
 }
