@@ -31,19 +31,18 @@ internal suspend fun affectAnimation(
 ) {
     val cx = item.center.x
     val cy = item.center.y
-    var count = 0f
     while (true) {
         update {
-            if (count % 6000 == 0f)
-                count = 0f
+            if (item.count % 6000 == 0f)
+                item.count = 0f
             val a = (item.radiusDomain.getDifference())
-            val b = (count % 6000) / 6000f
+            val b = (item.count % 6000) / 6000f
             val angle = a * b
             val radius =
                 item.motionPath(angle) * min(rect.width, rect.height) * item.motionRadiusPercent
             it.coordinate = Offset(cx + radius * cos(angle), cy + radius * sin(angle))
+            item.count += item.speed
         }
-        count += item.speed
         if (enable)
             delay(1)
         else break

@@ -3,6 +3,7 @@ package com.gamapp.movableradialgradient.utils
 import android.R
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.media.MediaPlayer
 import android.view.Window
@@ -15,8 +16,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.gamapp.movableradialgradient.service.MusicService
 import kotlinx.coroutines.delay
 
+fun Context.startMusicService() {
+    val intent = Intent(this, MusicService::class.java)
+    startService(intent)
+}
 //fun statusBarHeight(context: Context): Dp {
 //    val rectangle = Rect()
 //    val window: Window = (context as Activity).window
@@ -50,6 +56,11 @@ fun statusBarHeight(context: Context): Dp {
     return (height / density).dp
 }
 
+data class Paddings(
+    val top :Dp,
+    val bottom:Dp
+)
+
 @Composable
 fun StatusBarColor(isDark: Boolean) {
     val context = LocalContext.current
@@ -69,10 +80,7 @@ fun StatusBarColor(isDark: Boolean) {
     }
 }
 
-@Composable
-fun activity(): Activity {
-    return LocalContext.current as Activity
-}
+
 
 @Composable
 fun context(): Context {
@@ -87,10 +95,8 @@ fun changeDarkMode(isDark: Boolean) {
 }
 
 
-
-
 @Composable
-fun MediaPlayer.seekState(play: Boolean,seek:Float = 0f,onEnd:()->Unit): MutableState<Float> {
+fun MediaPlayer.seekState(play: Boolean, seek: Float = 0f, onEnd: () -> Unit): MutableState<Float> {
     val seekPercent = remember {
         mutableStateOf(0f)
     }

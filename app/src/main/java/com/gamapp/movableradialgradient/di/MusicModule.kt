@@ -1,7 +1,10 @@
 package com.gamapp.movableradialgradient.di
 
+import android.app.UiModeManager
 import android.content.Context
 import android.media.MediaPlayer
+import androidx.activity.ComponentActivity
+import com.gamapp.movableradialgradient.MediaContainer
 import com.gamapp.movableradialgradient.R
 import dagger.Module
 import dagger.Provides
@@ -12,10 +15,17 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-object MusicModule{
+object MusicModule {
     @Provides
     @Singleton
-    fun provideMediaPlayer(@ApplicationContext context: Context): MediaPlayer? {
-        return MediaPlayer.create(context, R.raw.hozier_take_me_to_church)
+    fun provideMediaPlayer(@ApplicationContext context: Context): MediaContainer {
+        return MediaContainer(context)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideUiModeManager(@ApplicationContext context: Context): UiModeManager {
+        return context.getSystemService(ComponentActivity.UI_MODE_SERVICE) as UiModeManager
     }
 }
