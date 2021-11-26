@@ -136,7 +136,6 @@ fun ColumnScope.Contents() {
 @ExperimentalMaterialApi
 @Composable
 fun BoxScope.Button(onClick: () -> Unit) {
-    val color = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -176,8 +175,8 @@ fun BoxScope.Button(onClick: () -> Unit) {
 @Composable
 fun PermissionScreen(navController: NavController, paddings: Paddings) {
     val activity = LocalContext.current as Activity
-    LaunchedEffect(key1 = activity.isPermissionGranted()){
-        if (activity.isPermissionGranted()){
+    LaunchedEffect(key1 = activity.isPermissionGranted()) {
+        if (activity.isPermissionGranted()) {
             navController.popBackStack()
             navController.navigate(route = Screens.Player.name)
         }
@@ -186,9 +185,13 @@ fun PermissionScreen(navController: NavController, paddings: Paddings) {
         mutableStateOf(false)
     }
     val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) {
-        if (it) {
+        var total = true
+        it.forEach { item ->
+            total = total && item.value
+        }
+        if (total) {
             navController.popBackStack()
             navController.navigate(route = Screens.Player.name)
         } else {
@@ -212,8 +215,15 @@ fun PermissionScreen(navController: NavController, paddings: Paddings) {
         Button {
             if (activity.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_MEDIA_LOCATION)) {
                 showPermissionRationalDialog.value = true
+            } else if (activity.shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                showPermissionRationalDialog.value = true
             } else {
-                permissionLauncher.launch(Manifest.permission.ACCESS_MEDIA_LOCATION)
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_MEDIA_LOCATION,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    )
+                )
             }
         }
     }

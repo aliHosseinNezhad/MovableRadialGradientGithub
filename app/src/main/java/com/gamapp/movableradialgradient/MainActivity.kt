@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gamapp.movableradialgradient.ui.Screens
+import com.gamapp.movableradialgradient.ui.screen.MusicList
 import com.gamapp.movableradialgradient.ui.screen.MusicPlayer
 import com.gamapp.movableradialgradient.ui.screen.PermissionScreen
 import com.gamapp.movableradialgradient.ui.theme.MovableRadialGradientTheme
@@ -58,10 +59,11 @@ class MainActivity : ComponentActivity() {
                         PermissionScreen(navController, paddings)
                     }
                     composable(route = Screens.Player.name) {
-                        MusicPlayer(
-                            statusBarHeight = statusBarHeight,
-                            navigationBarHeight = navigationBarHeight
-                        )
+//                        MusicPlayer(
+//                            statusBarHeight = statusBarHeight,
+//                            navigationBarHeight = navigationBarHeight
+//                        )
+                        MusicList()
                     }
                 }
             }
@@ -75,7 +77,11 @@ fun Activity.isPermissionGranted(): Boolean {
         (ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_MEDIA_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED)
+        ) == PackageManager.PERMISSION_GRANTED) &&
+                (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED)
     } else true
 }
 
