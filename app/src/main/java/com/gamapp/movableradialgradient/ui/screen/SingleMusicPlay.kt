@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -22,6 +23,7 @@ import com.gamapp.movableradialgradient.utils.StatusBarColor
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
 import com.gamapp.movableradialgradient.viewmodel.MusicViewModel
 import com.gamapp.movableradialgradient.R
+
 @ExperimentalMaterialApi
 @Composable
 fun MusicPlayer(
@@ -29,9 +31,9 @@ fun MusicPlayer(
     navigationBarHeight: Dp,
     viewModel: MusicViewModel = hiltViewModel()
 ) {
-    DisposableEffect(key1 = "start"){
+    DisposableEffect(key1 = "start") {
         viewModel.onStart()
-        onDispose {  }
+        onDispose { }
     }
     val isDark = true
     val musicState by viewModel.musicPlayState
@@ -90,6 +92,7 @@ fun MusicPlayer(
                             .fillMaxWidth(0.6f)
                             .aspectRatio(1f)
                             .align(Alignment.CenterHorizontally),
+                        colorFilter = ColorFilter.tint(Color.White)
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     MusicControllers(modifier = Modifier.fillMaxWidth())

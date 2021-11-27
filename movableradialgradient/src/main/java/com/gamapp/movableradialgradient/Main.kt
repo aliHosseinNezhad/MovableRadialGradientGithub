@@ -18,6 +18,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import com.gamapp.movableradialgradient.mapper.toMotionListMapper
 import com.gamapp.movableradialgradient.model.RadialGradientInfo
 import com.gamapp.movableradialgradient.model.RadialGradientMotionInfo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.*
@@ -43,9 +44,13 @@ internal suspend fun affectAnimation(
             it.coordinate = Offset(cx + radius * cos(angle), cy + radius * sin(angle))
             item.count += item.speed
         }
+//        delay(1)
         if (enable)
             delay(1)
-        else break
+        else {
+            delay(5)
+            break
+        }
     }
 }
 
@@ -65,7 +70,7 @@ internal fun SnapshotStateList<RadialGradientMotionInfo>.update(
 fun MotionRadialGradient(
     modifier: Modifier,
     items: List<RadialGradientInfo>,
-    enable: Boolean = true
+    enable: Boolean
 ) {
     var rect by remember {
         mutableStateOf(null as Rect?)

@@ -23,7 +23,7 @@ fun BackgroundGradient(modifier: Modifier, enable: Boolean) {
                     sin(2 * it)
                 },
                 center = Coordinate(0.5f, 0.5f),
-                motionFieldSizePercent = 1.8f
+                motionFieldSizePercent = 1.5f
             ),
             RadialGradientInfo(
                 color = Color.Magenta.alpha(0.5f),

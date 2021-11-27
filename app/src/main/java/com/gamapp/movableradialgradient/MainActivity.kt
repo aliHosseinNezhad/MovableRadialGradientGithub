@@ -10,9 +10,11 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.core.content.ContextCompat
@@ -20,7 +22,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gamapp.movableradialgradient.ui.Screens
+import com.gamapp.movableradialgradient.ui.screen.BackgroundGradient
 import com.gamapp.movableradialgradient.ui.screen.MusicList
+//import com.gamapp.movableradialgradient.ui.screen.MusicList
 import com.gamapp.movableradialgradient.ui.screen.MusicPlayer
 import com.gamapp.movableradialgradient.ui.screen.PermissionScreen
 import com.gamapp.movableradialgradient.ui.theme.MovableRadialGradientTheme
@@ -49,6 +53,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             StatusBarColor(isSystemInDarkTheme())
+//            BackgroundGradient(
+//                modifier = Modifier.fillMaxSize(), enable = true
+//            )
             MovableRadialGradientTheme(darkTheme = isSystemInDarkTheme()) {
 
                 NavHost(
@@ -59,11 +66,11 @@ class MainActivity : ComponentActivity() {
                         PermissionScreen(navController, paddings)
                     }
                     composable(route = Screens.Player.name) {
-//                        MusicPlayer(
-//                            statusBarHeight = statusBarHeight,
-//                            navigationBarHeight = navigationBarHeight
-//                        )
-                        MusicList()
+                        MusicPlayer(
+                            statusBarHeight = statusBarHeight,
+                            navigationBarHeight = navigationBarHeight
+                        )
+//                        MusicList()
                     }
                 }
             }

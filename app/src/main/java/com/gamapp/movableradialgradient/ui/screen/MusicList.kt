@@ -3,10 +3,12 @@ package com.gamapp.movableradialgradient.ui.screen
 import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,42 +19,79 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
+import com.gamapp.movableradialgradient.R
 import com.gamapp.movableradialgradient.viewmodel.MusicListViewModel
-import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun Context.LoadImage(
     id: Long,
-    byteArray: MutableState<ByteArray?>
+    modifier: Modifier = Modifier.size(100.dp)
 ) {
+    var imageBitmap by remember {
+        mutableStateOf(null as ImageBitmap?)
+    }
     val coroutineScope = rememberCoroutineScope()
-    if (byteArray.value == null)
+    if (imageBitmap == null)
         DisposableEffect(key1 = "start") {
-
-            coroutineScope.launch(context = Dispatchers.IO) {
-                val  mmr = MediaMetadataRetriever()
-                mmr.setDataSource(
-                    this@LoadImage, ContentUris.withAppendedId(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        id
+            val job = coroutineScope.launch(context = Dispatchers.IO) {
+                try {
+                    val mmr = MediaMetadataRetriever()
+                    mmr.setDataSource(
+                        this@LoadImage, ContentUris.withAppendedId(
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                            id
+                        )
                     )
-                )
-                val data = mmr.embeddedPicture
-                byteArray.value = data
+                    val data = mmr.embeddedPicture
+                    data?.let { bytes ->
+                        var bitmap =
+                            BitmapFactory.decodeByteArray(
+                                bytes,
+                                0,
+                                bytes.size
+                            )
+                        val width = bitmap.width
+                        val height = bitmap.height
+                        bitmap = bitmap.scale(100, (100 * height / width.toFloat()).toInt())
+                        imageBitmap = bitmap?.asImageBitmap()
+                    }
+                    mmr.release()
+                } catch (e: Exception) {
+
+                }
             }
             onDispose {
-//                byteArray.value = null
+                coroutineScope.launch {
+                    job.cancelAndJoin()
+                }
             }
         }
+    imageBitmap?.let { imageBitmap ->
+        Image(
+            bitmap = imageBitmap,
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = ContentScale.Crop
+        )
+    } ?: let {
+        Image(
+            painter = painterResource(id = R.drawable.round_music_note_24),
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 
@@ -61,7 +100,6 @@ fun Context.LoadImage(
 fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
     val holder = ImageBitmap(50, 50)
     val canvas = Canvas(holder)
-    val mmr = MediaMetadataRetriever()
     canvas.nativeCanvas.drawColor(Color.Blue.toArgb())
     val musicList by viewModel.audioList
     val loadState by viewModel.loadState
@@ -83,22 +121,7 @@ fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
                         }
                 ) {
                     Text(text = "$item.id ", color = Color.Gray)
-                    context.LoadImage(item.id, item.byteArray)
-                    item.byteArray.value?.let {
-                        GlideImage(
-                            imageModel = it,
-                            modifier = Modifier
-                                .size(50.dp),
-                            requestOptions = {
-                                RequestOptions()
-                                    .override(50, 50)
-                                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                                    .centerCrop()
-                            },
-                        )
-                    } ?: let {
-
-                    }
+                    context.LoadImage(item.id)
                 }
             }
             item { Spacer(modifier = Modifier.padding(8.dp)) }
