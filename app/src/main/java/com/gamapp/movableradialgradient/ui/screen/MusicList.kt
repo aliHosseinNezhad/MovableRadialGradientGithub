@@ -13,30 +13,35 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gamapp.movableradialgradient.R
+import com.gamapp.movableradialgradient.viewmodel.Audio
 import com.gamapp.movableradialgradient.viewmodel.MusicListViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
-@RequiresApi(Build.VERSION_CODES.P)
+
 @Composable
 fun Context.LoadImage(
     id: Long,
-    modifier: Modifier = Modifier.size(100.dp)
+    modifier: Modifier
 ) {
     var imageBitmap by remember {
         mutableStateOf(null as ImageBitmap?)
@@ -110,8 +115,10 @@ fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
     }
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn {
+            item {
+                Spacer(modifier = Modifier.padding(32.dp))
+            }
             itemsIndexed(musicList) { index, item ->
-                Spacer(modifier = Modifier.padding(8.dp))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -120,9 +127,10 @@ fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
                             viewModel.playMusic(index)
                         }
                 ) {
-                    Text(text = "$item.id ", color = Color.Gray)
-                    context.LoadImage(item.id)
+                    MusicItem(item)
                 }
+                Spacer(modifier = Modifier.padding(8.dp))
+
             }
             item { Spacer(modifier = Modifier.padding(8.dp)) }
         }
@@ -132,6 +140,93 @@ fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
                     .size(100.dp)
                     .align(Alignment.Center)
             )
+    }
+
+}
+
+
+@Composable
+fun MusicItem(item: Audio) {
+    val context = LocalContext.current
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .height(70.dp)
+    ) {
+        Surface(
+            color = Color.Gray,
+            shape = RoundedCornerShape(15),
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxHeight()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(15))
+        ) {
+            context.LoadImage(
+                id = item.id, modifier = Modifier
+                    .fillMaxSize()
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Start),
+            ) {
+                Text(
+                    text = item.name,
+                    fontSize = 17.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 30.dp),
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Start),
+            ) {
+                Text(
+                    text = item.duration.toString(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 30.dp),
+                    textAlign = TextAlign.Start,
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Spacer(modifier = Modifier.padding(4.dp))
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp),
+                thickness = 1.dp,
+                color = Color.LightGray
+            )
+        }
+        Spacer(modifier = Modifier.padding(8.dp))
+        Image(
+            painter = painterResource(id = R.drawable.round_more_vert_24),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxHeight()
+                .width(30.dp),
+            colorFilter = ColorFilter.tint(Color.Gray)
+        )
+        Spacer(modifier = Modifier.padding(8.dp))
     }
 
 }

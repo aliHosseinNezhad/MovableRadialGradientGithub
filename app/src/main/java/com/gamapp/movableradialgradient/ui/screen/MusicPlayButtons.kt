@@ -19,7 +19,7 @@ import com.gamapp.movableradialgradient.utils.startMusicService
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
 
 @Composable
-fun MusicPlayButtons(modifier: Modifier, viewModel: MusicViewModel = hiltViewModel()) {
+fun MusicPlayButtons(modifier: Modifier,clickable:Boolean, viewModel: MusicViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val drawables = remember {
         mutableStateListOf(
@@ -66,6 +66,7 @@ fun MusicPlayButtons(modifier: Modifier, viewModel: MusicViewModel = hiltViewMod
     ) {
         drawables.forEach { item ->
             IconButton(
+                enabled = clickable,
                 onClick = {
                     item.onclick?.let {
                         it()
@@ -74,7 +75,6 @@ fun MusicPlayButtons(modifier: Modifier, viewModel: MusicViewModel = hiltViewMod
                     .weight(1f)
                     .aspectRatio(1f)
                     .clip(CircleShape),
-                enabled = true
             ) {
                 Icon(
                     painter = painterResource(id = item.color),

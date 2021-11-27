@@ -102,7 +102,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:27.0.1-android'
 
-    //glide
-//    implementation "com.github.skydoves:landscapist-glide:1.4.3"
+    //constraint layout
+    implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.0-rc02'
 
 }
