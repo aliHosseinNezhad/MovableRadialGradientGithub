@@ -9,10 +9,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.gamapp.movableradialgradient.viewmodel.MusicViewModel
+import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
 
 @Composable
-fun SeekBar(modifier: Modifier,clickable:Boolean, viewModel: MusicViewModel = hiltViewModel()) {
+fun SeekBar(modifier: Modifier, clickable:Boolean, playViewModel: MusicPlayViewModel = hiltViewModel()) {
     AndroidView(factory = {
         SeekBar(it).apply {
             max = 10000
@@ -35,7 +35,7 @@ fun SeekBar(modifier: Modifier,clickable:Boolean, viewModel: MusicViewModel = hi
                     fromUser: Boolean
                 ) {
                     if (fromUser) {
-                        viewModel.seekTo(progress / max.toFloat())
+                        playViewModel.seekTo(progress / max.toFloat())
                     }
                 }
 
@@ -50,7 +50,7 @@ fun SeekBar(modifier: Modifier,clickable:Boolean, viewModel: MusicViewModel = hi
         }
     }, update = {
         it.isEnabled = clickable
-        it.progress = (viewModel.seekState.value * it.max).toInt()
+        it.progress = (playViewModel.seekState.value * it.max).toInt()
     },
         modifier = modifier
     )

@@ -13,42 +13,41 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.gamapp.movableradialgradient.viewmodel.MusicViewModel
+import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
 import com.gamapp.movableradialgradient.R
 import com.gamapp.movableradialgradient.utils.startMusicService
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
 
 @Composable
-fun MusicPlayButtons(modifier: Modifier,clickable:Boolean, viewModel: MusicViewModel = hiltViewModel()) {
+fun MusicPlayButtons(modifier: Modifier, clickable:Boolean, playViewModel: MusicPlayViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val drawables = remember {
         mutableStateListOf(
-            ColorState(
+            ButtonModel(
                 R.drawable.round_shuffle_24,
                 R.drawable.outline_shuffle_on_24
             ),
-            ColorState(R.drawable.round_fast_rewind_24),
-            ColorState(
+            ButtonModel(R.drawable.round_fast_rewind_24),
+            ButtonModel(
                 R.drawable.round_pause_24,
                 R.drawable.round_play_arrow_24,
                 onclick = {
-                    if (viewModel.musicPlayState.value == MusicPlayerState.NotStarted) {
-                        context.startMusicService()
-                        viewModel.start()
-                    } else if (viewModel.musicPlayState.value == MusicPlayerState.Pause) {
-                        viewModel.resume()
-                    } else if (viewModel.musicPlayState.value == MusicPlayerState.Started) {
-                        viewModel.pause()
+                    if (playViewModel.musicPlayState.value == MusicPlayerState.NotStarted) {
+                        playViewModel.start()
+                    } else if (playViewModel.musicPlayState.value == MusicPlayerState.Pause) {
+                        playViewModel.resume()
+                    } else if (playViewModel.musicPlayState.value == MusicPlayerState.Started) {
+                        playViewModel.pause()
                     }
                 },
                 isSelected = mutableStateOf(false)
             ),
-            ColorState(
+            ButtonModel(
                 R.drawable.round_fast_forward_24,
                 onclick = {
-                    viewModel.nextMusic()
+                    playViewModel.nextMusic()
                 }),
-            ColorState(
+            ButtonModel(
                 R.drawable.round_repeat_24,
                 R.drawable.round_repeat_one_24,
                 onclick = {
@@ -58,7 +57,7 @@ fun MusicPlayButtons(modifier: Modifier,clickable:Boolean, viewModel: MusicViewM
         )
     }
 
-    drawables[2].isSelected.value = viewModel.musicPlayState.value == MusicPlayerState.Started
+    drawables[2].isSelected.value = playViewModel.musicPlayState.value == MusicPlayerState.Started
 
     Row(
         modifier = modifier
@@ -94,14 +93,14 @@ interface Copyable<out T> where T : Copyable<T> {
     fun getCopy(): T
 }
 
-data class ColorState(
+data class ButtonModel(
     val selected: Int,
     val unSelected: Int? = null,
     var isSelected: MutableState<Boolean> = mutableStateOf(false),
     var onclick: (() -> Unit)? = null
-) : Copyable<ColorState> {
+) : Copyable<ButtonModel> {
     val color get() = unSelected?.let { if (isSelected.value) selected else it } ?: selected
-    override fun getCopy(): ColorState = this.copy()
+    override fun getCopy(): ButtonModel = this.copy()
 }
 
 fun <E : Copyable<E>> SnapshotStateList<E>.update(item: E, update: (E) -> Unit) {

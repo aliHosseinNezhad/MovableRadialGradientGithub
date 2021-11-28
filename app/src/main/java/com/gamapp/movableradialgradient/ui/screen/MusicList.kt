@@ -5,9 +5,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-import android.os.Build
 import android.provider.MediaStore
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
@@ -32,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gamapp.movableradialgradient.R
 import com.gamapp.movableradialgradient.viewmodel.Audio
 import com.gamapp.movableradialgradient.viewmodel.MusicListViewModel
+import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
@@ -68,8 +68,8 @@ fun Context.LoadImage(
                             )
                         val width = bitmap.width
                         val height = bitmap.height
-                        bitmap = bitmap.scale(100, (100 * height / width.toFloat()).toInt())
-                        imageBitmap = bitmap?.asImageBitmap()
+                        bitmap = bitmap.scale(50, (50 * height / width.toFloat()).toInt())
+                        imageBitmap = bitmap.asImageBitmap()
                     }
                     mmr.release()
                 } catch (e: Exception) {
@@ -100,20 +100,25 @@ fun Context.LoadImage(
 }
 
 
+@ExperimentalMaterialApi
+@ExperimentalComposeUiApi
 @SuppressLint("NewApi")
 @Composable
 fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
-    val holder = ImageBitmap(50, 50)
-    val canvas = Canvas(holder)
-    canvas.nativeCanvas.drawColor(Color.Blue.toArgb())
+    val musicPlayViewModel: MusicPlayViewModel = hiltViewModel()
     val musicList by viewModel.audioList
-    val loadState by viewModel.loadState
-    val context = LocalContext.current
     DisposableEffect(key1 = "start") {
         viewModel.extractMusics()
         onDispose { }
     }
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .padding(
+                bottom = viewModel.navigationBarHeight() + 25.dp,
+                top = viewModel.statusBarHeight()
+            )
+            .fillMaxSize()
+    ) {
         LazyColumn {
             item {
                 Spacer(modifier = Modifier.padding(32.dp))
@@ -124,24 +129,20 @@ fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
                         .fillMaxWidth()
                         .height(100.dp)
                         .clickable {
-                            viewModel.playMusic(index)
+                            musicPlayViewModel.setMusic(item)
                         }
                 ) {
                     MusicItem(item)
                 }
-                Spacer(modifier = Modifier.padding(8.dp))
-
             }
-            item { Spacer(modifier = Modifier.padding(8.dp)) }
+            item { Spacer(modifier = Modifier.padding(60.dp)) }
         }
-        if (loadState)
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(100.dp)
-                    .align(Alignment.Center)
-            )
     }
-
+    MusicPlayer(
+        statusBarHeight = viewModel.statusBarHeight(),
+        navigationBarHeight = viewModel.navigationBarHeight(),
+        playViewModel = musicPlayViewModel
+    )
 }
 
 

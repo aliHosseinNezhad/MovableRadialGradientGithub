@@ -37,10 +37,9 @@ fun MovableRadialGradientTheme(
     } else {
         LightColorPalette
     }
-
     MaterialTheme(
         colors = colors,
-        typography = Typography,
+        typography = if (darkTheme) DarkTypography else Typography,
         shapes = Shapes,
         content = content
     )

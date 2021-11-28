@@ -70,25 +70,18 @@ internal fun SnapshotStateList<RadialGradientMotionInfo>.update(
 fun MotionRadialGradient(
     modifier: Modifier,
     items: List<RadialGradientInfo>,
-    enable: Boolean
+    enable: Boolean,
+    rect:Rect
 ) {
-    var rect by remember {
-        mutableStateOf(null as Rect?)
-    }
     Box(
         modifier = modifier
-            .onGloballyPositioned {
-                rect = it.boundsInParent()
-            }
     ) {
-        rect?.let { rect ->
-            if (rect.width > 0f && rect.height > 0f)
-                MotionRadialGradientCanvas(
-                    rect = rect,
-                    items = items.toMotionListMapper(rect),
-                    enable = enable
-                )
-        }
+        if (rect.width > 0f && rect.height > 0f)
+            MotionRadialGradientCanvas(
+                rect = rect,
+                items = items.toMotionListMapper(rect),
+                enable = enable
+            )
     }
 }
 

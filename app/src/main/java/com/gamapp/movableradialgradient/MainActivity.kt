@@ -3,26 +3,37 @@ package com.gamapp.movableradialgradient
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.RenderNode
 import android.os.Build
 import android.os.Bundle
+import android.renderscript.RenderScript
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.min
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gamapp.movableradialgradient.ui.Screens
-import com.gamapp.movableradialgradient.ui.screen.BackgroundGradient
 import com.gamapp.movableradialgradient.ui.screen.MusicList
 //import com.gamapp.movableradialgradient.ui.screen.MusicList
 import com.gamapp.movableradialgradient.ui.screen.MusicPlayer
@@ -30,12 +41,16 @@ import com.gamapp.movableradialgradient.ui.screen.PermissionScreen
 import com.gamapp.movableradialgradient.ui.theme.MovableRadialGradientTheme
 import com.gamapp.movableradialgradient.utils.*
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.min
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    var statusBarHeight: Dp = 0.dp
-    var navigationBarHeight: Dp = 0.dp
+
 
     @ExperimentalComposeUiApi
     @SuppressLint("NewApi")
@@ -43,36 +58,34 @@ class MainActivity : ComponentActivity() {
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val route = if (isPermissionGranted()) Screens.Player.name
-        else Screens.Permission.name
-        statusBarHeight = statusBarHeight(this)
-        navigationBarHeight = navigateBarHeight(this)
-        val paddings = Paddings(statusBarHeight, navigationBarHeight)
-        Log.i("navigationBarHeight", "$navigationBarHeight")
-
         setContent {
-            val navController = rememberNavController()
-            StatusBarColor(isSystemInDarkTheme())
-//            BackgroundGradient(
-//                modifier = Modifier.fillMaxSize(), enable = true
-//            )
-            MovableRadialGradientTheme(darkTheme = isSystemInDarkTheme()) {
+            Screen(this)
+        }
+    }
+}
 
-                NavHost(
-                    navController = navController,
-                    startDestination = route
-                ) {
-                    composable(route = Screens.Permission.name) {
-                        PermissionScreen(navController, paddings)
-                    }
-                    composable(route = Screens.Player.name) {
-                        MusicPlayer(
-                            statusBarHeight = statusBarHeight,
-                            navigationBarHeight = navigationBarHeight
-                        )
-//                        MusicList()
-                    }
-                }
+@ExperimentalMaterialApi
+@ExperimentalComposeUiApi
+@Composable
+fun Screen(activity: MainActivity) {
+    val route = if (activity.isPermissionGranted()) Screens.Player.name
+    else Screens.Permission.name
+    val statusBarHeight = statusBarHeight(activity)
+    val navigationBarHeight = navigateBarHeight(activity)
+    val paddings = Paddings(statusBarHeight, navigationBarHeight)
+    Log.i("navigationBarHeight", "$navigationBarHeight")
+    val navController = rememberNavController()
+    StatusBarColor(isSystemInDarkTheme())
+    MovableRadialGradientTheme(darkTheme = isSystemInDarkTheme()) {
+        NavHost(
+            navController = navController,
+            startDestination = route
+        ) {
+            composable(route = Screens.Permission.name) {
+                PermissionScreen(navController, paddings)
+            }
+            composable(route = Screens.Player.name) {
+                MusicList()
             }
         }
     }

@@ -170,7 +170,6 @@ fun BoxScope.Button(onClick: () -> Unit) {
 }
 
 @ExperimentalComposeUiApi
-@RequiresApi(Build.VERSION_CODES.Q)
 @ExperimentalMaterialApi
 @Composable
 fun PermissionScreen(navController: NavController, paddings: Paddings) {

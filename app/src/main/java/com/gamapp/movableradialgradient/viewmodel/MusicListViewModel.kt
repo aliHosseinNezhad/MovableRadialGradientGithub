@@ -21,6 +21,8 @@ import android.graphics.Bitmap
 
 import android.media.MediaMetadataRetriever
 import androidx.compose.runtime.MutableState
+import com.gamapp.movableradialgradient.utils.navigateBarHeight
+import com.gamapp.movableradialgradient.utils.statusBarHeight
 
 
 data class Audio(
@@ -46,6 +48,8 @@ class MusicListViewModel @Inject constructor(
     private val contentResolver get() = application.contentResolver
     val audioList = mutableStateOf(ArrayList<Audio>())
     val loadState = mutableStateOf(false)
+    fun statusBarHeight() = statusBarHeight(context)
+    fun navigationBarHeight() = navigateBarHeight(context)
     private fun extractMusicList() {
         val list = mutableListOf<Audio>()
         val collection =
