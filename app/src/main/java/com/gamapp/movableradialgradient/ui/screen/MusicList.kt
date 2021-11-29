@@ -6,8 +6,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -21,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gamapp.movableradialgradient.R
+import com.gamapp.movableradialgradient.ui.theme.dark
+import com.gamapp.movableradialgradient.ui.theme.light
 import com.gamapp.movableradialgradient.viewmodel.Audio
 import com.gamapp.movableradialgradient.viewmodel.MusicListViewModel
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
@@ -111,38 +113,61 @@ fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
         viewModel.extractMusics()
         onDispose { }
     }
+    val listBackground = if (isSystemInDarkTheme()) dark else Color.White
+    val background = if (isSystemInDarkTheme()) Color.Black else light
     Box(
         modifier = Modifier
-            .padding(
-                bottom = viewModel.navigationBarHeight() + 25.dp,
-                top = viewModel.statusBarHeight()
-            )
             .fillMaxSize()
+            .background(background)
     ) {
-        LazyColumn {
-            item {
-                Spacer(modifier = Modifier.padding(32.dp))
-            }
-            itemsIndexed(musicList) { index, item ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp)
-                        .clickable {
-                            musicPlayViewModel.setMusic(item)
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    bottom = viewModel.navigationBarHeight() + 25.dp,
+                    top = viewModel.statusBarHeight() + 80.dp
+                ),
+            color = listBackground,
+            shape = RoundedCornerShape(
+                topStart = 25.dp,
+                topEnd = 25.dp,
+                bottomEnd = 0.dp,
+                bottomStart = 0.dp
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                LazyColumn {
+                    item {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                    }
+                    itemsIndexed(musicList) { index, item ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .clickable {
+                                    musicPlayViewModel.setMusic(item)
+                                }
+                        ) {
+                            MusicItem(item)
                         }
-                ) {
-                    MusicItem(item)
+                    }
+                    item { Spacer(modifier = Modifier.padding(60.dp)) }
                 }
             }
-            item { Spacer(modifier = Modifier.padding(60.dp)) }
         }
+
+        MusicPlayer(
+            statusBarHeight = viewModel.statusBarHeight(),
+            navigationBarHeight = viewModel.navigationBarHeight(),
+            playViewModel = musicPlayViewModel
+        )
     }
-    MusicPlayer(
-        statusBarHeight = viewModel.statusBarHeight(),
-        navigationBarHeight = viewModel.navigationBarHeight(),
-        playViewModel = musicPlayViewModel
-    )
+
+
 }
 
 
@@ -156,13 +181,18 @@ fun MusicItem(item: Audio) {
             .height(70.dp)
     ) {
         Surface(
-            color = Color.Gray,
+            color = if (isSystemInDarkTheme()) Color.DarkGray else light,
             shape = RoundedCornerShape(15),
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxHeight()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(15))
+                .clip(RoundedCornerShape(15)),
+            border = BorderStroke(
+                1.dp,
+                if (isSystemInDarkTheme()) Color.Transparent
+                else Color.LightGray
+            )
         ) {
             context.LoadImage(
                 id = item.id, modifier = Modifier

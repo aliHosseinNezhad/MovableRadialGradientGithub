@@ -125,7 +125,7 @@ fun MinimalMusicController(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = "Music Name hhhhhhhh",
+                    text = playViewModel.musicModel.name.value,
                     color = Color.White,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Start,
@@ -134,7 +134,7 @@ fun MinimalMusicController(
                 )
                 Spacer(modifier = Modifier.padding(bottom = 4.dp))
                 Text(
-                    text = "Music Details hhhh",
+                    text = playViewModel.musicModel.details.value,
                     color = Color.White,
                     fontSize = 11.sp,
                     textAlign = TextAlign.Start,

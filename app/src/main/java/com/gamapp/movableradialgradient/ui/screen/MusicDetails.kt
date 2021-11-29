@@ -56,6 +56,7 @@ fun ColumnScope.MusicImage(
                     .padding(vertical = 8.dp)
                     .weight(widthPercent)
                     .clip(RoundedCornerShape(cornerRadiusPercent))
+                    .background(Color.DarkGray.alpha(0.5f))
                     .aspectRatio(1f, true)
                     .align(Alignment.CenterVertically),
             )

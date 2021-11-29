@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.RenderNode
 import android.os.Build
 import android.os.Bundle
@@ -33,6 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.palette.graphics.Palette
 import com.gamapp.movableradialgradient.ui.Screens
 import com.gamapp.movableradialgradient.ui.screen.MusicList
 //import com.gamapp.movableradialgradient.ui.screen.MusicList
@@ -50,8 +52,6 @@ import kotlin.math.min
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-
     @ExperimentalComposeUiApi
     @SuppressLint("NewApi")
     @ExperimentalMaterialApi

@@ -39,12 +39,15 @@ import androidx.core.content.ContextCompat.startActivity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.material.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import com.gamapp.movableradialgradient.isPermissionGranted
+import com.gamapp.movableradialgradient.ui.theme.dark
+import com.gamapp.movableradialgradient.ui.theme.light
 import com.gamapp.movableradialgradient.ui.theme.primary
 import com.google.common.reflect.Reflection.getPackageName
 
@@ -200,6 +203,7 @@ fun PermissionScreen(navController: NavController, paddings: Paddings) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(if (isSystemInDarkTheme()) dark else light)
             .padding(top = paddings.top, bottom = paddings.bottom)
     ) {
         Column(
