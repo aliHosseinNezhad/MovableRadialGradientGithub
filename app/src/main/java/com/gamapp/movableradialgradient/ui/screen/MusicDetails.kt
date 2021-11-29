@@ -1,6 +1,8 @@
 package com.gamapp.movableradialgradient.ui.screen
 
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,6 +30,8 @@ import com.gamapp.movableradialgradient.R
 import com.gamapp.movableradialgradient.alpha
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
+import kotlin.math.PI
+import kotlin.math.sin
 
 @ExperimentalMaterialApi
 @Composable
@@ -48,7 +52,10 @@ fun ColumnScope.MusicImage(
                 viewModel.musicPlayState.value == MusicPlayerState.Started
             ) {
                 0.8f
-            } else 0.5f
+            } else 0.5f,
+            animationSpec = tween(durationMillis = 200, easing = {
+                sin(it * PI / 2f).toFloat()
+            })
         )
         val widthPercent =
             ((maxWidthPercent * motionPercent) + (1 - motionPercent) * 0.1f).coerceIn(
