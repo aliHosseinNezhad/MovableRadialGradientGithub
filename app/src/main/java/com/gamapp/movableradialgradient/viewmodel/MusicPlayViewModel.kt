@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.UiModeManager
 import android.content.ContentUris
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
@@ -13,18 +14,19 @@ import android.widget.Toast
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeableDefaults.AnimationSpec
 import androidx.compose.material.SwipeableState
-import androidx.compose.material.rememberSwipeableState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.core.graphics.scale
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.palette.graphics.Palette
 import com.gamapp.movableradialgradient.MediaContainer
-import com.gamapp.movableradialgradient.R
-import com.gamapp.movableradialgradient.ui.screen.LoadImage
+import com.gamapp.movableradialgradient.alpha
+import com.gamapp.movableradialgradient.ui.theme.primary
+import com.gamapp.movableradialgradient.ui.theme.secondary
 import com.gamapp.movableradialgradient.utils.startMusicService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -60,19 +62,40 @@ class MusicPlayViewModel @Inject constructor(
         confirmStateChange = { true }
     )
     val musicModel: MusicModel = MusicModel()
+    val colors: MutableState<List<Color>> = initPaletteColors()
+
+    private fun initPaletteColors(): MutableState<List<Color>> {
+        val colors = mutableListOf(
+            primary.alpha(0.9f),
+            secondary.alpha(0.65f)
+        )
+        return mutableStateOf(colors)
+    }
 
     val musicPlayState = mutableStateOf(MusicPlayerState.NotStarted)
     val seekState: MutableState<Float> = mutableStateOf(0f)
     private val context: Context get() = application.applicationContext
 
-    fun onStart() {
-        mediaContainer.mediaPlayer?.let { mediaPlayer ->
-            if (mediaPlayer.isPlaying) {
-                seekState.value = mediaPlayer.currentPosition / mediaPlayer.duration.toFloat()
-                musicPlayState.value = MusicPlayerState.Started
-            } else if (mediaPlayer.currentPosition != 0) {
-                seekState.value = mediaPlayer.currentPosition / mediaPlayer.duration.toFloat()
-                musicPlayState.value = MusicPlayerState.Pause
+    fun init() {
+        viewModelScope.launch {
+            mediaContainer.mediaPlayer?.let { mediaPlayer ->
+                if (mediaPlayer.isPlaying) {
+                    seekState.value = mediaPlayer.currentPosition / mediaPlayer.duration.toFloat()
+                    musicPlayState.value = MusicPlayerState.Started
+                } else if (mediaPlayer.currentPosition != 0) {
+                    seekState.value = mediaPlayer.currentPosition / mediaPlayer.duration.toFloat()
+                    musicPlayState.value = MusicPlayerState.Pause
+                }
+            }
+            mediaContainer.audio?.let {
+                musicModel.bitmap.value = getBitmap(it.id)
+                musicModel.id.value = it.id
+                musicModel.name.value = it.name
+                musicModel.bitmap.value?.let {
+                    setPalette(it.asAndroidBitmap())
+                } ?: let {
+                    colors.value = initPaletteColors().value
+                }
             }
         }
     }
@@ -157,14 +180,25 @@ class MusicPlayViewModel @Inject constructor(
                 item.id
             )
             mediaContainer.mediaPlayer = MediaPlayer.create(context, uri)
-            musicModel.id.value = item.id
-            musicModel.name.value = item.name
-            musicModel.details.value = "details"
-            musicModel.bitmap.value = getBitmap(item.id)
-            onStart()
+            mediaContainer.audio = item
+            init()
             start()
         }
 
+    }
+
+    private fun setPalette(bitmap: Bitmap) {
+        val palette = Palette
+            .from(bitmap)
+            .generate()
+        val list1 = palette.targets.mapNotNull { it ->
+            palette.getSwatchForTarget(it)?.rgb?.let {
+                Color(it).alpha(0.8f)
+            }
+        }
+        if (list1.size > 2) {
+            colors.value = list1
+        }
     }
 
     fun getBitmap(id: Long): ImageBitmap? {

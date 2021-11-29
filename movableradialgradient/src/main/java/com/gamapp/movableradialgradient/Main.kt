@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.RadialGradientShader
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import com.gamapp.movableradialgradient.mapper.toMotionListMapper
+import com.gamapp.movableradialgradient.mapper.updateWith
 import com.gamapp.movableradialgradient.model.RadialGradientInfo
 import com.gamapp.movableradialgradient.model.RadialGradientMotionInfo
 import kotlinx.coroutines.Dispatchers
@@ -93,6 +94,9 @@ internal fun MotionRadialGradientCanvas(
 ) {
     val itemsState = remember {
         items
+    }
+    LaunchedEffect(key1 = items){
+        itemsState.updateWith(items.toList(),rect)
     }
     LaunchedEffect(key1 = enable) {
         for (item in itemsState) {

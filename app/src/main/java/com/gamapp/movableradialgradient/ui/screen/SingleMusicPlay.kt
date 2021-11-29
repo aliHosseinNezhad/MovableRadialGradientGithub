@@ -1,52 +1,26 @@
 package com.gamapp.movableradialgradient.ui.screen
 
 import android.app.Activity
-import android.graphics.BitmapFactory
 import android.os.Build
-import android.view.WindowManager
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
-import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.parseDesignElementsJSON
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
-import com.gamapp.movableradialgradient.R
-import com.gamapp.movableradialgradient.alpha
-import com.gamapp.movableradialgradient.ui.theme.primary
 import kotlinx.coroutines.launch
 
 const val Expanded = 0
@@ -76,13 +50,6 @@ fun NavigationBarColor(status: Boolean) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         activity.window.isStatusBarContrastEnforced = true
     }
-//    if (!status) {
-//        activity.window.statusBarColor = Color.DarkGray.toArgb()
-//        activity.window.navigationBarColor = Color.DarkGray.toArgb()
-//    } else {
-//        activity.window.statusBarColor = Color.White.toArgb()
-//        activity.window.navigationBarColor = Color.White.toArgb()
-//    }
 }
 
 @ExperimentalComposeUiApi
@@ -95,7 +62,7 @@ fun MusicPlayer(
 ) {
     NavigationBarColor(status = playViewModel.swipeableState.currentValue == Expanded)
     DisposableEffect(key1 = "start") {
-        playViewModel.onStart()
+        playViewModel.init()
         onDispose { }
     }
     var rect by remember {

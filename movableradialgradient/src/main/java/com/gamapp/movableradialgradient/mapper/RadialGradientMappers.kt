@@ -6,14 +6,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.AndroidPaint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RadialGradientShader
-import com.gamapp.movableradialgradient.alpha
-import com.gamapp.movableradialgradient.extractList
-import com.gamapp.movableradialgradient.generateColorStops
+import com.gamapp.movableradialgradient.*
 import com.gamapp.movableradialgradient.model.RadialGradientInfo
 import com.gamapp.movableradialgradient.model.RadialGradientMotionInfo
-import com.gamapp.movableradialgradient.shadow
 import kotlin.math.max
-
 
 internal fun RadialGradientInfo.toMotionMapper(
     rect: Rect
@@ -53,4 +49,42 @@ internal fun List<RadialGradientInfo>.toMotionListMapper(rect: Rect): SnapshotSt
         list.add(it.toMotionMapper(rect))
     }
     return list
+}
+
+
+internal fun SnapshotStateList<RadialGradientMotionInfo>.updateWith(
+    list: List<RadialGradientMotionInfo>,
+    rect: Rect
+) {
+    if (this.size > list.size) {
+        (list.size until this.size).forEach {
+            this.removeLast()
+        }
+    }
+    for (i in this.indices) {
+        this[i].updateWith(list[i]) {
+            this.update(this[i], it)
+        }
+    }
+    if (this.size < list.size) {
+        for (i in this.size until list.size) {
+            this.add(list[i])
+        }
+    }
+}
+
+internal fun RadialGradientMotionInfo.updateWith(
+    item: RadialGradientMotionInfo,
+    update: ((RadialGradientMotionInfo).() -> Unit) -> Unit
+) {
+    update {
+        center = item.center
+        speed = item.speed
+        paint = item.paint
+        radius = item.radius
+        motionPath = item.motionPath
+        color = item.color
+        radiusDomain = item.radiusDomain
+        motionRadiusPercent = item.motionRadiusPercent
+    }
 }

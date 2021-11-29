@@ -5,15 +5,15 @@ import androidx.compose.ui.graphics.AndroidPaint
 import androidx.compose.ui.graphics.Color
 
 internal data class RadialGradientMotionInfo(
-    val color:Color,
-    val paint: AndroidPaint,
-    val radius: Float,
-    val radiusDomain: RadiusDomain,
-    val motionPath: (Float) -> Float,
-    val speed: Float,
-    val center: Offset,
+    var color:Color,
+    var paint: AndroidPaint,
+    var radius: Float,
+    var radiusDomain: RadiusDomain,
+    var motionPath: (Float) -> Float,
+    var speed: Float,
+    var center: Offset,
     var coordinate: Offset?,
-    val motionRadiusPercent:Float,
+    var motionRadiusPercent:Float,
     var count:Float = 0f,
 )
 

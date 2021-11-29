@@ -1,11 +1,14 @@
 package com.gamapp.movableradialgradient.ui.screen
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,7 +27,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gamapp.movableradialgradient.R
 import com.gamapp.movableradialgradient.alpha
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
+import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
 
+@ExperimentalMaterialApi
 @Composable
 fun ColumnScope.MusicImage(
     motionPercent: Float,
@@ -37,15 +42,23 @@ fun ColumnScope.MusicImage(
     ) {
         val percent =
             (0.5f * motionPercent + (1 - motionPercent) * 0f).coerceIn(0f, 0.5f)
+        val maxWidthPercent by animateFloatAsState(
+            targetValue = if (
+                viewModel.swipeableState.currentValue == Expanded &&
+                viewModel.musicPlayState.value == MusicPlayerState.Started
+            ) {
+                0.8f
+            } else 0.5f
+        )
         val widthPercent =
-            ((0.5f * motionPercent) + (1 - motionPercent) * 0.1f).coerceIn(
+            ((maxWidthPercent * motionPercent) + (1 - motionPercent) * 0.1f).coerceIn(
                 0.1f,
-                0.5f
+                maxWidthPercent
             )
         val startPercent = percent / 2f
         val endPercent = (1 - percent) / 2f
         val cornerRadiusPercent =
-            (motionPercent) * 30f + (1 - motionPercent) * 100f
+            (motionPercent) * 60f + (1 - motionPercent) * 100f
         SpaceWeight(weight = startPercent)
         val bitmap = viewModel.musicModel.bitmap.value
         if (bitmap != null) {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -20,12 +21,18 @@ import kotlin.math.PI
 import kotlin.math.sin
 
 @Composable
-fun BackgroundGradient(modifier: Modifier, rect: Rect, enable: Boolean) {
+fun BackgroundGradient(
+    modifier: Modifier,
+    rect: Rect,
+    enable: Boolean,
+    viewModel: MusicPlayViewModel = hiltViewModel()
+) {
+    val colors by viewModel.colors
     MotionRadialGradient(
         modifier = modifier,
         items = listOf(
             RadialGradientInfo(
-                color = Color(0, 100, 255).alpha(0.9f),
+                color = colors[0],
                 radiusPercent = 3f,
                 speed = 2f,
                 polarMotionPath = {
@@ -35,7 +42,7 @@ fun BackgroundGradient(modifier: Modifier, rect: Rect, enable: Boolean) {
                 motionFieldSizePercent = 1.5f
             ),
             RadialGradientInfo(
-                color = Color.Magenta.alpha(0.5f),
+                color = colors[1],
                 radiusPercent = 1.6f,
                 speed = 2f,
                 polarMotionPath = {
@@ -52,11 +59,12 @@ fun BackgroundGradient(modifier: Modifier, rect: Rect, enable: Boolean) {
 
 
 @Composable
-fun BackColor(rect: Rect,viewModel: MusicPlayViewModel = hiltViewModel(),motionPercent:Float){
+fun BackColor(rect: Rect, viewModel: MusicPlayViewModel = hiltViewModel(), motionPercent: Float) {
     Box(modifier = Modifier.fillMaxSize()) {
         BackgroundGradient(
             Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .background(Color.Black),
             rect,
             enable = viewModel.musicPlayState.value == MusicPlayerState.Started && motionPercent == 1f
         )

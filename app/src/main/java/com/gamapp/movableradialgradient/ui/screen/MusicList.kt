@@ -70,7 +70,7 @@ fun Context.LoadImage(
                             )
                         val width = bitmap.width
                         val height = bitmap.height
-                        bitmap = bitmap.scale(50, (50 * height / width.toFloat()).toInt())
+                        bitmap = bitmap.scale(100, (100 * height / width.toFloat()).toInt())
                         imageBitmap = bitmap.asImageBitmap()
                     }
                     mmr.release()
@@ -131,8 +131,8 @@ fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
             shape = RoundedCornerShape(
                 topStart = 25.dp,
                 topEnd = 25.dp,
-                bottomEnd = 0.dp,
-                bottomStart = 0.dp
+                bottomEnd = 25.dp,
+                bottomStart = 25.dp
             )
         ) {
             Box(
@@ -159,7 +159,6 @@ fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
                 }
             }
         }
-
         MusicPlayer(
             statusBarHeight = viewModel.statusBarHeight(),
             navigationBarHeight = viewModel.navigationBarHeight(),
@@ -259,5 +258,4 @@ fun MusicItem(item: Audio) {
         )
         Spacer(modifier = Modifier.padding(8.dp))
     }
-
 }
