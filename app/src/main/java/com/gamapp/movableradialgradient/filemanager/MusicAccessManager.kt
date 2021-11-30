@@ -151,7 +151,6 @@ class MusicAccessManager @Inject constructor(
         )?.captureArtists(list)
         return list
     }
-    //
 
     fun getMusicsByAlbumId(albumId: Long): List<AudioEntity> {
         val list = mutableListOf<AudioEntity>()
