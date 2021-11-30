@@ -26,10 +26,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gamapp.movableradialgradient.MusicPlayerState
 import com.gamapp.movableradialgradient.R
 import com.gamapp.movableradialgradient.alpha
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
-import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
 import kotlin.math.PI
 import kotlin.math.sin
 

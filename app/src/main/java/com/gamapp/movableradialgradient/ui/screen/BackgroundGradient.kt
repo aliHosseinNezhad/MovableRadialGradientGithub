@@ -10,13 +10,13 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gamapp.movableradialgradient.MotionRadialGradient
+import com.gamapp.movableradialgradient.MusicPlayerState
 import com.gamapp.movableradialgradient.alpha
 import com.gamapp.movableradialgradient.model.Coordinate
 import com.gamapp.movableradialgradient.model.RadialGradientInfo
 import com.gamapp.movableradialgradient.ui.theme.primary
 import com.gamapp.movableradialgradient.viewmodel.MusicListViewModel
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
-import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
 import kotlin.math.PI
 import kotlin.math.sin
 

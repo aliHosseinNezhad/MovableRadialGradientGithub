@@ -26,9 +26,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gamapp.movableradialgradient.MusicPlayerState
 import com.gamapp.movableradialgradient.R
-import com.gamapp.movableradialgradient.utils.startMusicService
-import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
 import kotlinx.coroutines.launch
 
@@ -78,7 +77,7 @@ fun MinimalMusicController(
                 unSelected = R.drawable.round_pause_24,
                 onclick = {
                     if (playViewModel.musicPlayState.value == MusicPlayerState.NotStarted) {
-                        playViewModel.start()
+                        playViewModel.play()
                     } else if (playViewModel.musicPlayState.value == MusicPlayerState.Pause) {
                         playViewModel.resume()
                     } else if (playViewModel.musicPlayState.value == MusicPlayerState.Started) {

@@ -20,7 +20,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,9 +28,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gamapp.movableradialgradient.R
+import com.gamapp.movableradialgradient.entity.AudioEntity
 import com.gamapp.movableradialgradient.ui.theme.dark
 import com.gamapp.movableradialgradient.ui.theme.light
-import com.gamapp.movableradialgradient.viewmodel.Audio
+
 import com.gamapp.movableradialgradient.viewmodel.MusicListViewModel
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
 import kotlinx.coroutines.Dispatchers
@@ -108,10 +108,15 @@ fun Context.LoadImage(
 @Composable
 fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
     val musicPlayViewModel: MusicPlayViewModel = hiltViewModel()
-    val musicList by viewModel.audioList
+    val musicList = viewModel.audioList
+    val albumList = viewModel.albumList
     DisposableEffect(key1 = "start") {
-        viewModel.extractMusics()
+        viewModel.loadAlbums()
         onDispose { }
+    }
+    LaunchedEffect(key1 = albumList) {
+        if (albumList.isNotEmpty())
+            viewModel.loadMusicsByAlbumId(albumList[1].albumId)
     }
     val listBackground = if (isSystemInDarkTheme()) dark else Color.White
     val background = if (isSystemInDarkTheme()) Color.Black else light
@@ -171,7 +176,7 @@ fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
 
 
 @Composable
-fun MusicItem(item: Audio) {
+fun MusicItem(item: AudioEntity) {
     val context = LocalContext.current
     Row(
         modifier = Modifier
@@ -211,7 +216,7 @@ fun MusicItem(item: Audio) {
                     .align(Alignment.Start),
             ) {
                 Text(
-                    text = item.name,
+                    text = item.title,
                     fontSize = 17.sp,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -227,7 +232,7 @@ fun MusicItem(item: Audio) {
                     .align(Alignment.Start),
             ) {
                 Text(
-                    text = item.duration.toString(),
+                    text = item.displayName,
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 30.dp),

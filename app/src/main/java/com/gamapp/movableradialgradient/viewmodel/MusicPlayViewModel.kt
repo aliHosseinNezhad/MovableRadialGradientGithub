@@ -7,7 +7,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-import android.media.MediaPlayer
 import android.os.Build
 import android.provider.MediaStore
 import android.widget.Toast
@@ -23,23 +22,17 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
-import com.gamapp.movableradialgradient.MediaContainer
+import com.gamapp.movableradialgradient.MediaController
 import com.gamapp.movableradialgradient.alpha
+import com.gamapp.movableradialgradient.entity.AudioEntity
 import com.gamapp.movableradialgradient.ui.theme.primary
 import com.gamapp.movableradialgradient.ui.theme.secondary
-import com.gamapp.movableradialgradient.utils.startMusicService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
 
-enum class MusicPlayerState {
-    NotStarted,
-    Pause,
-    Started
-}
 
 data class MusicModel(
     var name: MutableState<String> = mutableStateOf(""),
@@ -51,10 +44,9 @@ data class MusicModel(
 @HiltViewModel
 class MusicPlayViewModel @Inject constructor(
     private val application: Application,
-    private val mediaContainer: MediaContainer,
+    private val mediaController: MediaController,
     private val uiModeManager: UiModeManager
 ) : ViewModel() {
-
     @ExperimentalMaterialApi
     val swipeableState = SwipeableState(
         initialValue = 1,
@@ -63,7 +55,6 @@ class MusicPlayViewModel @Inject constructor(
     )
     val musicModel: MusicModel = MusicModel()
     val colors: MutableState<List<Color>> = initPaletteColors()
-
     private fun initPaletteColors(): MutableState<List<Color>> {
         val colors = mutableListOf(
             primary.alpha(0.9f),
@@ -72,25 +63,16 @@ class MusicPlayViewModel @Inject constructor(
         return mutableStateOf(colors)
     }
 
-    val musicPlayState = mutableStateOf(MusicPlayerState.NotStarted)
-    val seekState: MutableState<Float> = mutableStateOf(0f)
+    val musicPlayState = mediaController.playerState
+    val seekState: MutableState<Float> = mediaController.seekState
     private val context: Context get() = application.applicationContext
 
     fun init() {
         viewModelScope.launch {
-            mediaContainer.mediaPlayer?.let { mediaPlayer ->
-                if (mediaPlayer.isPlaying) {
-                    seekState.value = mediaPlayer.currentPosition / mediaPlayer.duration.toFloat()
-                    musicPlayState.value = MusicPlayerState.Started
-                } else if (mediaPlayer.currentPosition != 0) {
-                    seekState.value = mediaPlayer.currentPosition / mediaPlayer.duration.toFloat()
-                    musicPlayState.value = MusicPlayerState.Pause
-                }
-            }
-            mediaContainer.audio?.let {
+            mediaController.audioEntity?.let {
                 musicModel.bitmap.value = getBitmap(it.id)
                 musicModel.id.value = it.id
-                musicModel.name.value = it.name
+                musicModel.name.value = it.displayName
                 musicModel.bitmap.value?.let {
                     setPalette(it.asAndroidBitmap())
                 } ?: let {
@@ -115,76 +97,24 @@ class MusicPlayViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateSeekState(seek: Float? = null) {
-        seek?.let { seekTo(it) }
-        mediaContainer.mediaPlayer?.let { mediaPlayer ->
-            while (mediaPlayer != null && mediaPlayer.isPlaying) {
-                delay(100)
-                seekState.value = mediaPlayer.let {
-                    it.currentPosition / it.duration.toFloat()
-                }
-            }
-        }
-        if (musicPlayState.value == MusicPlayerState.Started)
-            restart()
-    }
+    private fun repeat() = mediaController.repeat()
 
-    private fun restart() {
-        mediaContainer.mediaPlayer?.let {
-            it.pause()
-            seekTo(0f)
-            musicPlayState.value = MusicPlayerState.NotStarted
-        }
-    }
+    fun seekTo(seek: Float) = mediaController.seekTo(seek)
 
-    fun seekTo(seek: Float) {
-        mediaContainer.mediaPlayer?.let {
-            seekState.value = seek
-            it.seekTo((seek * it.duration).toInt())
-        }
-    }
+    fun pause() = mediaController.pause()
 
-    fun pause() {
-        mediaContainer.mediaPlayer?.let {
-            it.pause()
-            musicPlayState.value = MusicPlayerState.Pause
-        }
-    }
 
-    fun resume() {
-        mediaContainer.mediaPlayer?.let {
-            it.start()
-            musicPlayState.value = MusicPlayerState.Started
-            viewModelScope.launch(Dispatchers.Default) {
-                updateSeekState(seekState.value)
-            }
-        }
-    }
+    fun resume() = mediaController.resume()
 
-    fun start() {
-        mediaContainer.mediaPlayer?.let { mediaPlayer ->
-            context.startMusicService()
-            mediaPlayer.start()
-            musicPlayState.value = MusicPlayerState.Started
-            viewModelScope.launch(Dispatchers.Default) {
-                updateSeekState()
-            }
-        }
-    }
+    fun play() = mediaController.play()
 
-    fun setMusic(item: Audio) {
+
+    fun setMusic(item: AudioEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            mediaContainer.mediaPlayer?.reset()
-            val uri = ContentUris.withAppendedId(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                item.id
-            )
-            mediaContainer.mediaPlayer = MediaPlayer.create(context, uri)
-            mediaContainer.audio = item
+            mediaController.set(item)
+            play()
             init()
-            start()
         }
-
     }
 
     private fun setPalette(bitmap: Bitmap) {

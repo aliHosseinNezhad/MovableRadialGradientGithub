@@ -13,10 +13,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gamapp.movableradialgradient.MusicPlayerState
 import com.gamapp.movableradialgradient.viewmodel.MusicPlayViewModel
 import com.gamapp.movableradialgradient.R
-import com.gamapp.movableradialgradient.utils.startMusicService
-import com.gamapp.movableradialgradient.viewmodel.MusicPlayerState
 
 @Composable
 fun MusicPlayButtons(modifier: Modifier, clickable:Boolean, playViewModel: MusicPlayViewModel = hiltViewModel()) {
@@ -33,7 +32,7 @@ fun MusicPlayButtons(modifier: Modifier, clickable:Boolean, playViewModel: Music
                 R.drawable.round_play_arrow_24,
                 onclick = {
                     if (playViewModel.musicPlayState.value == MusicPlayerState.NotStarted) {
-                        playViewModel.start()
+                        playViewModel.play()
                     } else if (playViewModel.musicPlayState.value == MusicPlayerState.Pause) {
                         playViewModel.resume()
                     } else if (playViewModel.musicPlayState.value == MusicPlayerState.Started) {

@@ -2,10 +2,9 @@ package com.gamapp.movableradialgradient.di
 
 import android.app.UiModeManager
 import android.content.Context
-import android.media.MediaPlayer
 import androidx.activity.ComponentActivity
-import com.gamapp.movableradialgradient.MediaContainer
-import com.gamapp.movableradialgradient.R
+import com.gamapp.movableradialgradient.MediaController
+import com.gamapp.movableradialgradient.repository.MusicRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,11 +15,14 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object MusicModule {
-    @Provides
-    @Singleton
-    fun provideMediaPlayer(@ApplicationContext context: Context): MediaContainer {
-        return MediaContainer(context)
-    }
+//    @Provides
+//    @Singleton
+//    fun provideMediaPlayer(
+//        @ApplicationContext context: Context,
+//        musicRepository: MusicRepository
+//    ): MediaController {
+//        return MediaController(context, musicRepository)
+//    }
 
 
     @Provides
