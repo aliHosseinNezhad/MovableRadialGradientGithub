@@ -109,14 +109,14 @@ fun Context.LoadImage(
 fun MusicList(viewModel: MusicListViewModel = hiltViewModel()) {
     val musicPlayViewModel: MusicPlayViewModel = hiltViewModel()
     val musicList = viewModel.audioList
-    val albumList = viewModel.albumList
+    val artistList = viewModel.artistList
     DisposableEffect(key1 = "start") {
-        viewModel.loadAlbums()
+        viewModel.loadArtists()
         onDispose { }
     }
-    LaunchedEffect(key1 = albumList) {
-        if (albumList.isNotEmpty())
-            viewModel.loadMusicsByAlbumId(albumList[1].albumId)
+    LaunchedEffect(key1 = artistList) {
+        if (artistList.isNotEmpty())
+            viewModel.loadMusicsByArtistId(artistList[1].id)
     }
     val listBackground = if (isSystemInDarkTheme()) dark else Color.White
     val background = if (isSystemInDarkTheme()) Color.Black else light
