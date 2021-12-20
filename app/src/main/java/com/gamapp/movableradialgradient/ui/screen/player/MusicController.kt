@@ -1,4 +1,4 @@
-package com.gamapp.movableradialgradient.ui.screen
+package com.gamapp.movableradialgradient.ui.screen.player
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource

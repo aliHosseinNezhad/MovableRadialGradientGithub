@@ -1,4 +1,4 @@
-package com.gamapp.movableradialgradient.ui.screen
+package com.gamapp.movableradialgradient.ui.screen.player
 
 import android.app.Activity
 import android.os.Build

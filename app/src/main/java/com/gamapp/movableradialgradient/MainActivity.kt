@@ -31,14 +31,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.min
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.palette.graphics.Palette
 import com.gamapp.movableradialgradient.ui.Screens
+import com.gamapp.movableradialgradient.ui.screen.Albums
 import com.gamapp.movableradialgradient.ui.screen.MusicList
-//import com.gamapp.movableradialgradient.ui.screen.MusicList
-import com.gamapp.movableradialgradient.ui.screen.MusicPlayer
 import com.gamapp.movableradialgradient.ui.screen.PermissionScreen
 import com.gamapp.movableradialgradient.ui.theme.MovableRadialGradientTheme
 import com.gamapp.movableradialgradient.utils.*
@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+//            TestMotion()
             Screen(this)
         }
     }

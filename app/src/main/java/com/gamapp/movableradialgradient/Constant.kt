@@ -1,10 +1,6 @@
 package com.gamapp.movableradialgradient
 
 object Constant {
-    //    const val CLOSE_INTENT_REQUEST_CODE: Int = 12323
-//    const val CLOSE_INTENT_ACTION: String = "CLOSE_INTENT_ACTION"
-//    const val BUTTON_CLICKED_MSG: String = "BUTTON_CLICKED_MSG"
-//    const val BUTTONS_BROADCAST_INTENT_KEY: String = "BUTTONS_BROADCAST_INTENT_KEY"
     const val NOTIFICATION_CHANNEL_ID = "123WER12T3"
     const val NOTIFICATION_CHANNEL_NAME = "MUSIC NOTIFICATION CHANNEL"
     const val MUSIC_PLAYER_NOTIFICATION_ID = 12

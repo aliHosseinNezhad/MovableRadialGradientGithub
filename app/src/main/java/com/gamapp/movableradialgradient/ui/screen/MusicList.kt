@@ -29,6 +29,7 @@ import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gamapp.movableradialgradient.R
 import com.gamapp.movableradialgradient.entity.AudioEntity
+import com.gamapp.movableradialgradient.ui.screen.player.MusicPlayer
 import com.gamapp.movableradialgradient.ui.theme.dark
 import com.gamapp.movableradialgradient.ui.theme.light
 

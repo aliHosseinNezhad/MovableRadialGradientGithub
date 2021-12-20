@@ -52,17 +52,23 @@ class MusicAccessManager @Inject constructor(
         val albumIdIndex = getColumnIndex(MediaStore.Audio.Albums.ALBUM_ID)
         val numberOfSongsIndex = getColumnIndex(MediaStore.Audio.Albums.NUMBER_OF_SONGS)
         val artistIndex = getColumnIndex(MediaStore.Audio.Albums.ARTIST)
+        val albumNameIndex = getColumnIndex(MediaStore.Audio.Albums.ALBUM)
+
         while (moveToNext()) {
             val id = getLong(idIndex)
             val albumId = getLong(albumIdIndex)
             val artist = getString(artistIndex)
             val count = getInt(numberOfSongsIndex)
-            list += AlbumEntity(
-                id = id,
-                artist = artist,
-                albumId = albumId,
-                count = count
-            )
+            val albumName = getString(albumNameIndex)
+            if (count > 1)
+                list += AlbumEntity(
+                    id = id,
+                    artist = artist,
+                    albumId = albumId,
+                    albumName = albumName,
+                    count = count,
+                    imageId = getAlbumImageId(albumId)
+                )
         }
     }
 
@@ -107,6 +113,28 @@ class MusicAccessManager @Inject constructor(
         return list
     }
 
+    fun getAlbumImageId(albumId: Long): Long? {
+        val selection = "${MediaStore.Audio.Albums.ALBUM_ID} == ?"
+        val selectionArgs = arrayOf(
+            albumId.toString()
+        )
+        val cursor = contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            null,
+            selection,
+            selectionArgs,
+            null
+        )
+        cursor?.run {
+            val idIndex = getColumnIndex(MediaStore.Audio.Media._ID)
+            if (moveToNext()) {
+                return getLong(idIndex)
+            }
+            return null
+        }
+        return null
+    }
+
     fun getAlbumList(): List<AlbumEntity> {
         val list = mutableListOf<AlbumEntity>()
         val collection =
@@ -119,6 +147,7 @@ class MusicAccessManager @Inject constructor(
             }
 
         val sortOrder = "${MediaStore.Audio.Albums.NUMBER_OF_SONGS} DESC"
+//        val selection = "${MediaStore.Audio.Albums.NUMBER_OF_SONGS} >= ?"
         val cursor = contentResolver.query(
             collection,
             null,

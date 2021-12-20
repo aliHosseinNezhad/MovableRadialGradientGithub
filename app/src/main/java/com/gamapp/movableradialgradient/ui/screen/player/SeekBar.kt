@@ -1,4 +1,4 @@
-package com.gamapp.movableradialgradient.ui.screen
+package com.gamapp.movableradialgradient.ui.screen.player
 
 import android.graphics.PorterDuff
 import android.view.ViewGroup

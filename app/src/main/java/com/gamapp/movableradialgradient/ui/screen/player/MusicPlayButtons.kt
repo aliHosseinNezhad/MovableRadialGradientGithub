@@ -1,4 +1,4 @@
-package com.gamapp.movableradialgradient.ui.screen
+package com.gamapp.movableradialgradient.ui.screen.player
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape

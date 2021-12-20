@@ -1,4 +1,4 @@
-package com.gamapp.movableradialgradient.ui.screen
+package com.gamapp.movableradialgradient.ui.screen.player
 
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.animateFloatAsState
